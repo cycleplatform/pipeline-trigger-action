@@ -131,6 +131,7 @@ async function trackPipeline(client, pipelineId, runId) {
                 }
                 if (!!step.error) {
                     core.setFailed(`❌ Step failed ${groupName} - ${step.error?.message}\n`);
+                    core.endGroup();
                     return;
                 }
                 if (finished && !completedSteps.has(stepId)) {
