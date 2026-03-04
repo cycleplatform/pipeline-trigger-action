@@ -3,7 +3,7 @@
   "version": "0.5.9",
   "type": "module",
   "description": "Trigger a pipeline on Cycle as a Github Action",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc && npm ci --only=production",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,7 @@
   "author": "Petrichor Holdings, Inc.",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "3.0.0",
+    "@actions/core": "1.11.1",
     "@cycleplatform/api-client-typescript": "0.3.23"
   },
   "devDependencies": {

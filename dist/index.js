@@ -92,7 +92,7 @@ async function triggerPipeline(client, pipelineId, variables, advanced) {
 // Polling function to track pipeline execution
 async function trackPipeline(client, pipelineId, runId) {
     const completedSteps = new Set(); // Track completed steps
-    let startedSteps = new Set(); // Track started steps
+    const startedSteps = new Set(); // Track started steps
     while (true) {
         const { data, error } = await client.GET(`/v1/pipelines/{pipelineId}/runs/{runId}`, {
             params: {
@@ -107,6 +107,13 @@ async function trackPipeline(client, pipelineId, runId) {
             return;
         }
         const { data: pipelineRun } = data;
+        //  Fail early if pipeline never started any stages
+        if (!pipelineRun.stages || pipelineRun.stages.length === 0) {
+            if (["failed", "canceled", "aborted", "error"].includes(pipelineRun.state.current)) {
+                core.setFailed(`❌ Pipeline failed before any stages could start. Final state: ${pipelineRun.state.current}`);
+                return;
+            }
+        }
         pipelineRun.stages.forEach((stage, stageIdx) => {
             stage.steps.forEach((step, stepIdx) => {
                 const stepId = `${stageIdx}-${stepIdx}`;
@@ -122,21 +129,34 @@ async function trackPipeline(client, pipelineId, runId) {
                     core.startGroup(`${groupName}`);
                     core.info(`⏳ Step started ${groupName}`);
                 }
+                if (!!step.error) {
+                    core.setFailed(`❌ Step failed ${groupName} - ${step.error?.message}\n`);
+                    return;
+                }
                 if (finished && !completedSteps.has(stepId)) {
                     completedSteps.add(stepId);
                     if (step.success) {
                         core.info(`✅ Step completed ${groupName}\n`);
                     }
                     else {
-                        core.setFailed(`❌ Step failed ${groupName} - ${step.error?.message}\n`);
+                        core.warning(`? Step finished in unknown state ${groupName}\n`);
                         return;
                     }
                     core.endGroup();
                 }
             });
         });
-        if (pipelineRun.state.current === "complete") {
+        const currentState = pipelineRun.state.current;
+        if (currentState === "complete") {
             core.info("🎉 Pipeline run completed successfully!");
+            return;
+        }
+        else if (["cancelled", "deleted"].includes(currentState)) {
+            core.setFailed(`❌ Pipeline run failed with state: ${currentState}`);
+            return;
+        }
+        else if (!!pipelineRun.state.error) {
+            core.setFailed(`❌ Pipeline run failed with error: ${pipelineRun.state.error?.message}\n`);
             return;
         }
         await new Promise((res) => setTimeout(res, 3000));
