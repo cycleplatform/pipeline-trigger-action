@@ -10,12 +10,12 @@
   "author": "Petrichor Holdings, Inc.",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "1.11.1",
-    "@cycleplatform/api-client-typescript": "0.3.8"
+    "@actions/core": "3.0.0",
+    "@cycleplatform/api-client-typescript": "0.3.23"
   },
   "devDependencies": {
-    "@types/node": "22.13.0",
+    "@types/node": "25.3.3",
     "ts-node": "10.9.2",
-    "typescript": "5.7.3"
+    "typescript": "5.9.3"
   }
 }
