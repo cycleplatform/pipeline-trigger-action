@@ -1,9 +1,8 @@
 {
   "name": "@cycleplatform/pipeline-trigger-action",
   "version": "0.5.9",
-  "type": "module",
   "description": "Trigger a pipeline on Cycle as a Github Action",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc && npm ci --only=production",
     "test": "echo \"Error: no test specified\" && exit 1"
