@@ -170,6 +170,7 @@ async function trackPipeline(
                     core.setFailed(
                         `❌ Step failed ${groupName} - ${step.error?.message}\n`,
                     );
+                    core.endGroup();
                     return;
                 }
 
